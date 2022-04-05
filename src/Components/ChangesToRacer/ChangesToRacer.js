@@ -87,6 +87,7 @@ const ChangesToRacer = () => {
 
   useEffect(() => {
     fetchindData();
+    // eslint-disable-next-line
   }, []);
 
   // change finishing time on firebase database

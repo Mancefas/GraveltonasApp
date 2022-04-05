@@ -61,7 +61,7 @@ const AddRacer = () => {
     nameValid &&
     surnameValid &&
     raceNRValid &&
-    raceDistanceInputValue &&
+    // raceDistanceInputValue &&
     bicycleInputValue &&
     raceGroupInputValue
   ) {
@@ -85,7 +85,7 @@ const AddRacer = () => {
     e.preventDefault();
 
     setRacer({
-      dist: +raceDistanceInputValue,
+      // dist: +raceDistanceInputValue,
       dviratis: bicycleInputValue,
       grupe: raceGroupInputValue,
       startoNr: +e.target.startoNr.value,
@@ -187,28 +187,30 @@ const AddRacer = () => {
               helperText={raceNRError ? "Dalyvio numeris būtinas" : ""}
             ></TextField>
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "1rem",
-            }}
-          >
-            <InputLabel id="race-distance">Distancija</InputLabel>
-            <Select
-              sx={{ width: "36%" }}
-              labelId="Dviratis"
-              id="bicycle"
-              value={raceDistanceInputValue}
-              onChange={distanceChangeHandler}
+          {config.RACE_DISTANCE.length > 0 && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "1rem",
+              }}
             >
-              {config.RACE_DISTANCE.map((itm) => (
-                <MenuItem value={`${itm}`}>{itm}</MenuItem>
-              ))}
-            </Select>
-          </Box>
+              <InputLabel id="race-distance">Distancija</InputLabel>
+              <Select
+                sx={{ width: "36%" }}
+                labelId="Dviratis"
+                id="bicycle"
+                value={raceDistanceInputValue}
+                onChange={distanceChangeHandler}
+              >
+                {config.RACE_DISTANCE.map((itm) => (
+                  <MenuItem value={`${itm}`}>{itm}</MenuItem>
+                ))}
+              </Select>
+            </Box>
+          )}
 
           <Box
             sx={{
