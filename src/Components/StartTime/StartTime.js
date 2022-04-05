@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 
-import {
-  Container,
-  TextField,
-  Box,
-  Button,
-  Alert,
-  LinearProgress,
-} from "@mui/material";
+import { Container, Box, Button, Alert, LinearProgress } from "@mui/material";
 
 import config from "../../config.json";
 import AuthContext from "../../store/auth-context";
@@ -162,7 +155,7 @@ const StartTime = () => {
             variant="outlined"
             sx={{ width: "fit-content", margin: "auto" }}
           >
-            Laikas pakeistas!
+            Laikas paleistas!
           </Alert>
         )}
         {errorMessage && (
@@ -183,15 +176,6 @@ const StartTime = () => {
               name="racerNumber"
             />
           </Box>
-          {/* <Box p={1}>
-            <TextField
-              label="Starto laikas"
-              type="time"
-              inputProps={inputProps}
-              name="newTimeInput"
-              sx={{ width: "70%" }}
-            ></TextField>
-          </Box> */}
           <Button
             disabled={racerNR === undefined ? true : false}
             p={1}
