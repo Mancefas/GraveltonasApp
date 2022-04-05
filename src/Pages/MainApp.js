@@ -8,8 +8,10 @@ import { Box, BottomNavigation, BottomNavigationAction } from "@mui/material";
 import ContactsIcon from "@mui/icons-material/Contacts";
 import ConstructionIcon from "@mui/icons-material/Construction";
 import DirectionsBikeIcon from "@mui/icons-material/DirectionsBike";
+import SportsScoreIcon from "@mui/icons-material/SportsScore";
 
 import FinishTime from "../Components/FinishTime/FinishTime";
+import StartTime from "../Components/StartTime/StartTime";
 import AddRacer from "../Components/AddRacer/AddRacer";
 import ChangesToRacer from "../Components/ChangesToRacer/ChangesToRacer";
 import LogOutBtn from "../Components/LogOutBtn";
@@ -34,6 +36,11 @@ function MainApp() {
   const alertUser = (e) => {
     e.preventDefault();
     e.returnValue = "";
+  };
+
+  const showStartTime = useSelector((state) => state.ui.showStartTimeComponent);
+  const showStartTimeHandler = () => {
+    dispatch(uiActions.showStart());
   };
 
   const showFinishTime = useSelector(
@@ -70,6 +77,7 @@ function MainApp() {
           padding: "1rem",
         }}
       >
+        {showStartTime && <StartTime />}
         {showFinishTime && <FinishTime />}
         {showAddRacer && <AddRacer />}
         {showChangesToRacer && <ChangesToRacer />}
@@ -82,8 +90,13 @@ function MainApp() {
         }}
       >
         <BottomNavigationAction
-          label="Fiksuoti laiką"
+          label="Starto Laikas"
           icon={<DirectionsBikeIcon />}
+          onClick={showStartTimeHandler}
+        />
+        <BottomNavigationAction
+          label="Finišo laiką"
+          icon={<SportsScoreIcon />}
           onClick={showFinRacerHandler}
         />
         <BottomNavigationAction
