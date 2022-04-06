@@ -86,6 +86,7 @@ const FinishTime = () => {
   const replaceRaceTime = async () => {
     const finishTime = newTime.finisoLaikas;
     const raceTime = newTime.vaziavimoLaikas;
+    const raceTimeInMS = newTime.vaziavimoLaikasMS;
 
     const racerForChanges = dataOfAllResults.filter(
       (number) => number.dalyvis === racerNR
@@ -101,6 +102,7 @@ const FinishTime = () => {
           body: JSON.stringify({
             finisoLaikas: `${finishTime}`,
             vaziavimoLaikas: `${raceTime}`,
+            vaziavimoLaikasMS: `${raceTimeInMS}`,
           }),
         }
       );
@@ -139,6 +141,7 @@ const FinishTime = () => {
       dalyvis: racerNR,
       finisoLaikas: `${raceFinish}`,
       vaziavimoLaikas: `${racingTimeInHMinSec}`,
+      vaziavimoLaikasMS: `${racingTimeInMilliseconds}`,
     };
     setNewTime(finishTime);
   };
