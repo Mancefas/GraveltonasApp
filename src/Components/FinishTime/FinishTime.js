@@ -83,15 +83,15 @@ const FinishTime = () => {
   }, []);
 
   // change finishing time on firebase database
-  const replaceRaceTime = async () => {
+  const addFinishTime = async () => {
     const finishTime = newTime.finisoLaikas;
     const raceTime = newTime.vaziavimoLaikas;
     const raceTimeInMS = newTime.vaziavimoLaikasMS;
 
-    const racerForChanges = dataOfAllResults.filter(
+    const racerToAddFinishTimeTo = dataOfAllResults.filter(
       (number) => number.dalyvis === racerNR
     );
-    const firebaseIdOfRacer = racerForChanges[0].id;
+    const firebaseIdOfRacer = racerToAddFinishTimeTo[0].id;
     loadingMessageHandler();
 
     try {
@@ -120,7 +120,7 @@ const FinishTime = () => {
     if (!newTime) {
       return;
     }
-    replaceRaceTime();
+    addFinishTime();
     // eslint-disable-next-line
   }, [newTime]);
 
@@ -144,10 +144,6 @@ const FinishTime = () => {
       vaziavimoLaikasMS: `${racingTimeInMilliseconds}`,
     };
     setNewTime(finishTime);
-  };
-
-  const inputProps = {
-    step: 1,
   };
 
   return (

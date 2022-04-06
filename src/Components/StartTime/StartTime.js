@@ -80,13 +80,13 @@ const StartTime = () => {
     // eslint-disable-next-line
   }, []);
 
-  // change finishing time on firebase database
-  const replaceRaceTime = async () => {
+  // add starting time on firebase database
+  const addStartTimeToRacer = async () => {
     const startTime = newTime.startoLaikas;
-    const racerForChanges = dataOfAllResults.filter(
+    const racerToAddStartTimeTo = dataOfAllResults.filter(
       (number) => number.dalyvis === racerNR
     );
-    const firebaseIdOfRacer = racerForChanges[0].id;
+    const firebaseIdOfRacer = racerToAddStartTimeTo[0].id;
     loadingMessageHandler();
 
     try {
@@ -111,7 +111,7 @@ const StartTime = () => {
     if (!newTime) {
       return;
     }
-    replaceRaceTime();
+    addStartTimeToRacer();
     // eslint-disable-next-line
   }, [newTime]);
 
@@ -125,10 +125,6 @@ const StartTime = () => {
       startoLaikas: `${raceStart}`,
     };
     setNewTime(newRaceTime);
-  };
-
-  const inputProps = {
-    step: 1,
   };
 
   return (
