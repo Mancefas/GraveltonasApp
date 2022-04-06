@@ -1,183 +1,202 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
-import {
-  TextField,
-  Container,
-  Button,
-  Box,
-  Avatar,
-  Alert,
-} from "@mui/material";
+import React, { useState, useEffect, useContext } from "react";
+
+import { Container, Box, Button, Alert, LinearProgress } from "@mui/material";
 
 import config from "../../config.json";
 import AuthContext from "../../store/auth-context";
 
-let initialLoad = true;
+import SelectButton from "../ChangesToRacer/SelectButton";
+import msToHoursMinutesSeconds from "../../Helpers/Helpers";
 
 const FinishTime = () => {
   const context = useContext(AuthContext);
+  const [racerNR, setRacerNr] = useState();
+  const [newTime, setNewTime] = useState();
+  const [dataOfAllResults, setDataOfAllResults] = useState();
 
-  const inputRef = useRef();
-  const [racer, setRacer] = useState();
-  const [sentOK, setSentOK] = useState();
-  const [notSent, setNotSent] = useState();
-  const [countFinished, setCountFinished] = useState(0);
-  const [apiError, setApiError] = useState();
+  const [loadingMessage, setLoadingMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(false);
 
+  const racerNrHandler = (number) => {
+    setRacerNr(number);
+  };
+
+  // functions to show only one message at the time
+  const loadingMessageHandler = () => {
+    setLoadingMessage(true);
+    setSuccessMessage(false);
+    setErrorMessage(false);
+  };
+  const sucessMessageHandler = () => {
+    setLoadingMessage(false);
+    setSuccessMessage(true);
+    setErrorMessage(false);
+  };
+  const errorMessageHandler = (message) => {
+    setLoadingMessage(false);
+    setSuccessMessage(false);
+    setErrorMessage(message);
+  };
+
+  //show success or error message only for few seconds
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setSentOK(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [sentOK]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setNotSent(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [notSent]);
-
-  const raceStart = new Date(config.RACE_START);
-
-  const inputHandler = () => {
-    setCountFinished((count) => count + 1);
-    const raceNumber = inputRef.current.value;
-    const currentTime = new Date();
-
-    const finishedRacer = {
-      dalyvis: +raceNumber,
-      startoLaikas: `${raceStart
-        .getHours()
-        .toString()
-        .padStart(2, 0)}:${raceStart
-        .getMinutes()
-        .toString()
-        .padStart(2, 0)}:${raceStart.getSeconds().toString().padStart(2, 0)}`,
-      finisoLaikas: `${currentTime
-        .getHours()
-        .toString()
-        .padStart(2, 0)}:${currentTime
-        .getMinutes()
-        .toString()
-        .padStart(2, 0)}:${currentTime.getSeconds().toString().padStart(2, 0)}`,
-      vaziavimoLaikas: `${currentTime.getHours() - raceStart.getHours()}:${(
-        currentTime.getMinutes() - raceStart.getMinutes()
-      )
-        .toString()
-        .padStart(2, 0)}:${(currentTime.getSeconds() - raceStart.getSeconds())
-        .toString()
-        .padStart(2, 0)}`,
+    setTimeout(() => {
+      if (successMessage) {
+        setSuccessMessage(false);
+      }
+      if (errorMessage) {
+        setErrorMessage(false);
+      }
+    }, 2500);
+    return () => {
+      clearTimeout();
     };
+  }, [successMessage, errorMessage]);
 
-    setRacer(finishedRacer);
-    inputRef.current.value = "";
+  // Get data of all racers
+  const fetchindData = async () => {
+    try {
+      const response = await fetch(config.API_URL_RACERS);
+      const data = await response.json();
+      const dataToArrayOfObjects = [];
+      for (const key in data) {
+        dataToArrayOfObjects.push({
+          id: key,
+          startoLaikas: data[key].startoLaikas,
+          dalyvis: data[key].startoNr,
+        });
+      }
+      setDataOfAllResults(dataToArrayOfObjects);
+      if (response.ok) {
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      errorMessageHandler(error.message);
+    }
   };
 
   useEffect(() => {
-    if (initialLoad) {
-      initialLoad = false;
-      return;
-    }
-    if (racer === undefined) {
-      return;
-    }
-    async function sendFinishTimeAndRaceNr(racer) {
-      try {
-        const response = await fetch(
-          `${config.API_URL_RESULT}?auth=${context.token}`,
-          {
-            method: "POST",
-            body: JSON.stringify(racer),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.ok) {
-          setSentOK(true);
-        } else if (!response.ok) {
-          setNotSent(true);
-          throw new Error("Klaida siunčiant! ");
-        } else {
-          throw new Error();
+    fetchindData();
+    // eslint-disable-next-line
+  }, []);
+
+  // change finishing time on firebase database
+  const replaceRaceTime = async () => {
+    const finishTime = newTime.finisoLaikas;
+    const raceTime = newTime.vaziavimoLaikas;
+
+    const racerForChanges = dataOfAllResults.filter(
+      (number) => number.dalyvis === racerNR
+    );
+    const firebaseIdOfRacer = racerForChanges[0].id;
+    loadingMessageHandler();
+
+    try {
+      const response = await fetch(
+        `${config.API_URL_FOR_FINISHTIME}${firebaseIdOfRacer}.json?auth=${context.token}`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({
+            finisoLaikas: `${finishTime}`,
+            vaziavimoLaikas: `${raceTime}`,
+          }),
         }
-      } catch (error) {
-        setApiError(error.message);
+      );
+      if (response.ok) {
+        sucessMessageHandler();
+      } else {
+        throw new Error(response.statusText);
       }
+    } catch (error) {
+      errorMessageHandler(error.message);
     }
-    sendFinishTimeAndRaceNr(racer);
-  }, [racer, context.token]);
+  };
+
+  useEffect(() => {
+    if (!newTime) {
+      return;
+    }
+    replaceRaceTime();
+    // eslint-disable-next-line
+  }, [newTime]);
+
+  // Get new finishing time from textfield
+  const submitedHandler = (e) => {
+    e.preventDefault();
+
+    const raceFinish = new Date().getTime();
+    const raceStartFromAPI = dataOfAllResults.filter(
+      (number) => number.dalyvis === racerNR
+    )[0].startoLaikas;
+    const racingTimeInMilliseconds = raceFinish - raceStartFromAPI;
+    const racingTimeInHMinSec = msToHoursMinutesSeconds(
+      racingTimeInMilliseconds
+    );
+
+    const finishTime = {
+      dalyvis: racerNR,
+      finisoLaikas: `${raceFinish}`,
+      vaziavimoLaikas: `${racingTimeInHMinSec}`,
+    };
+    setNewTime(finishTime);
+  };
+
+  const inputProps = {
+    step: 1,
+  };
 
   return (
-    <Container
-      maxWidth="xs"
-      sx={{
-        textAlign: "center",
-      }}
-    >
-      {apiError && (
-        <Alert
-          variant="filled"
-          severity="error"
-          onClose={() => {
-            setApiError(false);
-          }}
-        >
-          {apiError}
-        </Alert>
-      )}
-      <Box
+    <>
+      <Container
+        maxWidth="xs"
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "2rem",
+          textAlign: "center",
+          height: "fit-content",
         }}
       >
-        <Avatar sx={{ color: "#FFFFFF", bgcolor: "#3f50b5" }} variant="square">
-          {countFinished}
-        </Avatar>
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "1rem",
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <TextField
-            type="number"
-            sx={{ width: "50%" }}
-            label="Dalyvio nr."
-            color="primary"
-            focused
-            size="medium"
-            inputRef={inputRef}
-          />
-
-          {notSent && <Alert severity="error"></Alert>}
-          {sentOK && <Alert severity="success"></Alert>}
-        </Box>
-        <Button
-          sx={{
-            width: "75%",
-            display: "flex",
-            justifyContent: "space-evenly",
-          }}
-          variant="contained"
-          onClick={inputHandler}
-        >
-          Finišavo
-        </Button>
-      </Box>
-    </Container>
+        {loadingMessage && (
+          <LinearProgress sx={{ width: "50%", margin: "auto" }} />
+        )}
+        {successMessage && (
+          <Alert
+            severity="success"
+            variant="outlined"
+            sx={{ width: "fit-content", margin: "auto" }}
+          >
+            Dalyvis finišavo!
+          </Alert>
+        )}
+        {errorMessage && (
+          <Alert
+            severity="error"
+            variant="outlined"
+            sx={{ width: "fit-content", margin: "auto" }}
+          >
+            Klaida! ({errorMessage})
+          </Alert>
+        )}
+        <form onSubmit={submitedHandler}>
+          <Box p={1}>
+            <SelectButton
+              raceData={dataOfAllResults}
+              racerNrHandler={racerNrHandler}
+              racerNR={racerNR}
+              name="racerNumber"
+            />
+          </Box>
+          <Button
+            disabled={racerNR === undefined ? true : false}
+            p={1}
+            type="submit"
+            variant="contained"
+          >
+            Finišavo
+          </Button>
+        </form>
+      </Container>
+    </>
   );
 };
 

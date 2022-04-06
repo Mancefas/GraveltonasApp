@@ -118,17 +118,11 @@ const StartTime = () => {
   // Get new finishing time from textfield
   const submitedHandler = (e) => {
     e.preventDefault();
-    const raceStart = new Date();
+    const raceStart = new Date().getTime();
 
     const newRaceTime = {
       dalyvis: racerNR,
-      startoLaikas: `${raceStart
-        .getHours()
-        .toString()
-        .padStart(2, 0)}:${raceStart
-        .getMinutes()
-        .toString()
-        .padStart(2, 0)}:${raceStart.getSeconds().toString().padStart(2, 0)}`,
+      startoLaikas: `${raceStart}`,
     };
     setNewTime(newRaceTime);
   };
