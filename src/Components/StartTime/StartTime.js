@@ -12,6 +12,7 @@ const StartTime = () => {
   const [racerNR, setRacerNr] = useState();
   const [newTime, setNewTime] = useState();
   const [dataOfAllResults, setDataOfAllResults] = useState();
+  const [dataWithNoStartTime, setDataWithNoStartTime] = useState();
 
   const [loadingMessage, setLoadingMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
@@ -20,7 +21,6 @@ const StartTime = () => {
   const racerNrHandler = (number) => {
     setRacerNr(number);
   };
-
   // functions to show only one message at the time
   const loadingMessageHandler = () => {
     setLoadingMessage(true);
@@ -63,6 +63,7 @@ const StartTime = () => {
         dataToArrayOfObjects.push({
           id: key,
           dalyvis: data[key].startoNr,
+          start: data[key].startoLaikas,
         });
       }
       setDataOfAllResults(dataToArrayOfObjects);
@@ -74,11 +75,25 @@ const StartTime = () => {
       errorMessageHandler(error.message);
     }
   };
-
   useEffect(() => {
     fetchindData();
     // eslint-disable-next-line
   }, []);
+
+  // sort data to get only id that don't have race start time
+  const getDataWithNoStartTime = () => {
+    const sort = dataOfAllResults.filter(
+      (number) => number.start === undefined
+    );
+    setDataWithNoStartTime(sort);
+  };
+  useEffect(() => {
+    if (!dataOfAllResults) {
+      return;
+    }
+    getDataWithNoStartTime();
+    // eslint-disable-next-line
+  }, [dataOfAllResults]);
 
   // add starting time on firebase database
   const addStartTimeToRacer = async () => {
@@ -160,7 +175,7 @@ const StartTime = () => {
         <form onSubmit={submitedHandler}>
           <Box p={1}>
             <SelectButton
-              raceData={dataOfAllResults}
+              raceData={dataWithNoStartTime}
               racerNrHandler={racerNrHandler}
               racerNR={racerNR}
               name="racerNumber"

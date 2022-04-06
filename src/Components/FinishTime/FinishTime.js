@@ -13,6 +13,7 @@ const FinishTime = () => {
   const [racerNR, setRacerNr] = useState();
   const [newTime, setNewTime] = useState();
   const [dataOfAllResults, setDataOfAllResults] = useState();
+  const [dataWithNoFinishTime, setDataWithNoFinishTime] = useState();
 
   const [loadingMessage, setLoadingMessage] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
@@ -21,6 +22,8 @@ const FinishTime = () => {
   const racerNrHandler = (number) => {
     setRacerNr(number);
   };
+
+  console.log(dataOfAllResults);
 
   // functions to show only one message at the time
   const loadingMessageHandler = () => {
@@ -65,6 +68,7 @@ const FinishTime = () => {
           id: key,
           startoLaikas: data[key].startoLaikas,
           dalyvis: data[key].startoNr,
+          finish: data[key].finisoLaikas,
         });
       }
       setDataOfAllResults(dataToArrayOfObjects);
@@ -124,6 +128,21 @@ const FinishTime = () => {
     // eslint-disable-next-line
   }, [newTime]);
 
+  // sort data to get only id that don't have race start time
+  const getDataWithNoFinishTime = () => {
+    const sort = dataOfAllResults.filter(
+      (number) => number.finish === undefined
+    );
+    setDataWithNoFinishTime(sort);
+  };
+  useEffect(() => {
+    if (!dataOfAllResults) {
+      return;
+    }
+    getDataWithNoFinishTime();
+    // eslint-disable-next-line
+  }, [dataOfAllResults]);
+
   // Get new finishing time from textfield
   const submitedHandler = (e) => {
     e.preventDefault();
@@ -179,7 +198,7 @@ const FinishTime = () => {
         <form onSubmit={submitedHandler}>
           <Box p={1}>
             <SelectButton
-              raceData={dataOfAllResults}
+              raceData={dataWithNoFinishTime}
               racerNrHandler={racerNrHandler}
               racerNR={racerNR}
               name="racerNumber"
