@@ -29,18 +29,10 @@ const SelectButton = (props) => {
     <div>
       {props.raceData && (
         <Select
-          multiple
           displayEmpty
           value={racerNumber}
           onChange={handleChange}
           input={<OutlinedInput />}
-          renderValue={(selected) => {
-            if (selected.length === 0) {
-              return <em>Dalyvio nr</em>;
-            }
-
-            return selected.join(", ");
-          }}
           MenuProps={MenuProps}
           inputProps={{ "aria-label": "Without label" }}
         >
