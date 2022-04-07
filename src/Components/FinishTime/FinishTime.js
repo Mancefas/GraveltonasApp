@@ -131,7 +131,7 @@ const FinishTime = () => {
   // sort data to get only id that don't have race start time
   const getDataWithNoFinishTime = () => {
     const sort = dataOfAllResults.filter(
-      (number) => number.finish === undefined
+      (number) => number.finish === undefined && number.startoLaikas
     );
     setDataWithNoFinishTime(sort);
   };

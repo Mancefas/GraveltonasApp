@@ -106,7 +106,7 @@ function MainApp() {
           onClick={showAddRacerHandler}
         />
         <BottomNavigationAction
-          label="Taisyti dalyvio laiką "
+          label="Taisyti dalyvio laiką"
           icon={<ConstructionIcon />}
           onClick={showChangesToRacerHandler}
         />
